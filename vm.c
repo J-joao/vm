@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "vm.h"
 
 int main(int argc, const char *argv[]) {
     FILE *fp = fopen(argv[1], "r");
