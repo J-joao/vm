@@ -6,9 +6,9 @@
 #define RST "\e[0m"
 
 bool running = 1;
-int iID = 0;    // instruction ID
-int pc  = 0;    // program counter
-int imm = 0;    // immediate value
+int iID = 0; // instruction ID
+int pc  = 0; // program counter
+int imm = 0; // immediate value
 int r1  = 0;
 int r2  = 0;
 int r3  = 0;
@@ -37,7 +37,7 @@ void eval() {
         break;
     case 1:
         /* loadi */
-        printf("loadi r%d $%d\n", r1, imm);
+        printf("loadi r%d $%X\n", r1, imm);
         regs[r1] = imm;
         break;
     case 2:

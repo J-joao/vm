@@ -5,7 +5,7 @@
 
 int main(int argc, const char *argv[]) {
     FILE *fp = fopen(argv[1], "r");
-    char string[10];
+    char string[6];
     int i = 0;
 
     if (!fp) {
@@ -13,8 +13,8 @@ int main(int argc, const char *argv[]) {
     }
 
     /* allocate input file's content into array */
-    while(fgets(string, 10, fp)) {
-        program[i] = (int)strtol(string, NULL, 0);
+    while(fgets(string, 6, fp)) {
+        program[i] = (int)strtol(string, NULL, 16);
         i++;
     }
     
