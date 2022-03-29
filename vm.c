@@ -1,24 +1,118 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
-#include "vm.h"
+#include "instructions/instructions.h"
 
-int main(int argc, const char *argv[]) {
+#define GRN "\e[1;32m"
+#define BLU "\e[1;34m"
+#define RST "\e[0m"
+
+int64_t regs[4] = {0};
+bool running = 1;
+
+void vm_halt() {
+    running = 0;
+}
+
+void vm_add(int dest, int mode, int64_t src) {
+    if (mode == 0) {
+        regs[dest] += src;
+        printf("add r%d, 0x%lX\n", dest, src);
+    }
+    else {
+        regs[dest] += regs[src];
+        printf("add r%d, r%ld\n", dest, src);
+    }
+}
+
+void vm_sub(int dest, int mode, int64_t src) {
+    if (mode == 0) {
+        regs[dest] -= src;
+        printf("sub r%d, 0x%lX\n", dest, src);
+    }
+    else {
+        regs[dest] -= regs[src];
+        printf("sub r%d, r%ld\n", dest, src);
+    }
+}
+
+void vm_mul(int dest, int mode, int64_t src) {
+    if (mode == 0) {
+        regs[dest] *= src;
+        printf("mul r%d, 0x%lX\n", dest, src);
+    }
+    else {
+        regs[dest] *= regs[src];
+        printf("mul r%d, r%ld\n", dest, src);
+    }
+}
+
+void vm_div(int dest, int mode, int64_t src) {
+    if (mode == 0) {
+        regs[dest] /= src;
+        printf("div r%d, 0x%lX\n", dest, src);
+    }
+    else {
+        regs[dest] /= regs[src];
+        printf("div r%d, r%ld\n", dest, src);
+    }
+}
+
+void vm_load(int dest, int mode, int64_t src) {
+    if (mode == 0) {
+        regs[dest] = src;
+        printf("load r%d, 0x%lX\n", dest, src);
+    }
+    else {
+        regs[dest] = regs[src];
+        printf("load r%d, r%ld\n", dest, src);
+    }
+}
+
+void regs_status() {
+    for (int i = 0; i < 4; i++)
+        printf(GRN"r%d"RST" [%lX]  ", i, regs[i]);
+    printf("\n\n");
+}
+
+int main(int argc, char *argv[]) {
     FILE *fp = fopen(argv[1], "r");
-    char string[6];
-    int i = 0;
+    int id, dest, mode;
+    int64_t src;
 
     if (!fp) {
+        fprintf(stderr, "file \"%s\" was not found!\n", argv[1]);
         exit(1);
     }
 
-    /* allocate input file's content into array */
-    while(fgets(string, 6, fp)) {
-        program[i] = (int)strtol(string, NULL, 16);
-        i++;
+    while(running && fscanf(fp, "%i %i %i %lX", &id, &dest, &mode, &src) == 4) {
+        printf(BLU"OPCODE:   "RST"%i %i %i %lX\n", id, dest, mode, src);
+
+        if (ferror(fp)) {
+            fprintf(stderr, "ferror() occurance!\n");
+            exit(1);
+        }
+
+        printf(BLU"ASSEMBLY: "RST);
+        switch (id) {
+            case 0:
+                vm_halt(); break;
+            case 1:
+                vm_add(dest, mode, src); break;
+            case 2:
+                vm_sub(dest, mode, src); break;
+            case 3:
+                vm_mul(dest, mode, src); break;
+            case 4:
+                vm_div(dest, mode, src); break;
+            case 5:
+                vm_load(dest, mode, src); break;
+        }
+        regs_status();
     }
-    
-    run();
+
+    fclose(fp);
     return 0;
 }
-
